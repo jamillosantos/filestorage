@@ -45,7 +45,7 @@ func (b *bucket) Object(id string) (filestorage.Object, error) {
 	if stats.IsDir() {
 		return nil, errors.New("the object happens to be a directory")
 	}
-	obj, err := newObject(id, fname)
+	obj, err := newObject(b.id, id, fname)
 	return obj, err
 }
 
@@ -74,5 +74,5 @@ func (b *bucket) PutObject(id string, reader io.Reader, size int64, metadata fil
 		defer os.Remove(fname) // Sorry if it fails, we hope it not. Shame on me :/.
 		return nil, err
 	}
-	return newObject(id, fname)
+	return newObject(b.id, id, fname)
 }

@@ -7,4 +7,5 @@ type Object interface {
 	Metadata() Metadata
 	Open() (io.ReadCloser, error)
 	Remove() error
+	URL() string
 }

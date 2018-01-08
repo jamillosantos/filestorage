@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"bytes"
 	"path"
+	"fmt"
 )
 
 var _ = Describe("Local", func() {
@@ -44,6 +45,24 @@ var _ = Describe("Local", func() {
 			Expect(obj.ID()).To(Equal(objectID))
 		})
 
+		It("should return the correct object URL when creating an object", func() {
+			storage, err := local.NewStorage(commonCfg)
+			Expect(err).To(BeNil())
+			Expect(storage).NotTo(BeNil())
+
+			const bucketID = "bucket1"
+
+			bucket, err := storage.CreateBucket(bucketID)
+			Expect(err).To(BeNil())
+			Expect(bucket).NotTo(BeNil())
+
+			objectID := "object1"
+			reader := bytes.NewBufferString("this is the file content")
+			obj, err := bucket.PutObject(objectID, reader, int64(reader.Len()), nil)
+			Expect(err).To(BeNil())
+			Expect(obj.URL()).To(Equal(fmt.Sprintf("%s/%s", bucketID, objectID)))
+		})
+
 		It("should return the correct object ID when getting an object", func() {
 			storage, err := local.NewStorage(commonCfg)
 			Expect(err).To(BeNil())
@@ -64,6 +83,28 @@ var _ = Describe("Local", func() {
 			Expect(err).To(BeNil())
 			Expect(obj).NotTo(BeNil())
 			Expect(obj.ID()).To(Equal(objectID))
+		})
+
+		It("should return the correct object URL when getting an object", func() {
+			storage, err := local.NewStorage(commonCfg)
+			Expect(err).To(BeNil())
+			Expect(storage).NotTo(BeNil())
+
+			const bucketID = "bucket1"
+
+			bucket, err := storage.CreateBucket(bucketID)
+			Expect(err).To(BeNil())
+			Expect(bucket).NotTo(BeNil())
+
+			objectID := "object1"
+			reader := bytes.NewBufferString("this is the file content")
+			_, err = bucket.PutObject(objectID, reader, 0, nil)
+			Expect(err).To(BeNil())
+
+			obj, err := bucket.Object(objectID)
+			Expect(err).To(BeNil())
+			Expect(obj).NotTo(BeNil())
+			Expect(obj.URL()).To(Equal(fmt.Sprintf("%s/%s", bucketID, objectID)))
 		})
 
 		It("should remove an object", func() {
